@@ -302,9 +302,16 @@ class DeliveryApiTestCase(unittest.TestCase):
         self.assertEqual(assign_response.status_code, 200)
         delivery_id = assign_response.json()["id"]
 
-        invalid_location_response = self.client.post(
+        invalid_lat_response = self.client.post(
             f"/api/v1/deliveries/{delivery_id}/location",
             json={"latitude": 120, "longitude": -46.63, "status": "em_rota"},
             headers=self._auth_headers(courier_token),
         )
-        self.assertEqual(invalid_location_response.status_code, 422)
+        self.assertEqual(invalid_lat_response.status_code, 422)
+
+        invalid_lng_response = self.client.post(
+            f"/api/v1/deliveries/{delivery_id}/location",
+            json={"latitude": -23.55, "longitude": 200, "status": "em_rota"},
+            headers=self._auth_headers(courier_token),
+        )
+        self.assertEqual(invalid_lng_response.status_code, 422)
