@@ -8,6 +8,10 @@
   --ink: #1f2937;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background:
     radial-gradient(circle at 15% 20%, rgba(249, 115, 22, 0.18), transparent 35%),
@@ -15,6 +19,10 @@ body {
     linear-gradient(180deg, #fff7ed 0%, #fff1f2 100%);
   color: var(--ink);
   min-height: 100vh;
+}
+
+.glass-panel {
+  @apply rounded-[28px] border border-white/60 bg-white/70 shadow-lg shadow-red-100/70 backdrop-blur-xl;
 }
 
 .container-box {
@@ -26,5 +34,61 @@ body {
 }
 
 .btn-primary {
-  @apply rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700;
+  @apply rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-red-700;
+}
+
+.btn-secondary {
+  @apply rounded-xl border border-red-200 bg-white/80 px-4 py-2 text-sm font-semibold text-red-700 transition hover:-translate-y-0.5 hover:border-red-300;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full border border-red-200 bg-white/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-red-700;
+}
+
+.hero-orb {
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-orb-delay {
+  animation: float 8s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.soft-pulse {
+  animation: pulseGlow 3.2s ease-in-out infinite;
+}
+
+.fade-up {
+  animation: fadeUp 0.7s ease-out both;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

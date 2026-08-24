@@ -1,74 +1,49 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_roles
 from app.db.session import get_db
 from app.models.enums import UserRole
-from app.models.product import Product
-from app.models.restaurant import Restaurant
 from app.models.user import User
 from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
+from app.services.products import create_product, delete_product, list_restaurant_products, update_product
 
 router = APIRouter()
 
 
+@router.get("/restaurant/{restaurant_id}", response_model=list[ProductOut])
+def get_restaurant_products(
+    restaurant_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
+):
+    return list_restaurant_products(db, restaurant_id, user)
+
+
 @router.post("", response_model=ProductOut)
-def create_product(
+def create_product_endpoint(
     payload: ProductCreate,
     db: Session = Depends(get_db),
     user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
 ):
-    restaurant = db.scalar(select(Restaurant).where(Restaurant.id == payload.restaurant_id))
-    if not restaurant:
-        raise HTTPException(status_code=404, detail="Restaurante nao encontrado")
-    if user.role != UserRole.admin and restaurant.owner_user_id != user.id:
-        raise HTTPException(status_code=403, detail="Restaurante nao pertence ao usuario")
-
-    product = Product(**payload.model_dump())
-    db.add(product)
-    db.commit()
-    db.refresh(product)
-    return product
+    return create_product(db, payload, user)
 
 
 @router.put("/{product_id}", response_model=ProductOut)
-def update_product(
+def update_product_endpoint(
     product_id: int,
     payload: ProductUpdate,
     db: Session = Depends(get_db),
     user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
 ):
-    product = db.scalar(select(Product).where(Product.id == product_id))
-    if not product:
-        raise HTTPException(status_code=404, detail="Produto nao encontrado")
-
-    restaurant = db.scalar(select(Restaurant).where(Restaurant.id == product.restaurant_id))
-    if user.role != UserRole.admin and restaurant and restaurant.owner_user_id != user.id:
-        raise HTTPException(status_code=403, detail="Sem permissao")
-
-    for field, value in payload.model_dump(exclude_unset=True).items():
-        setattr(product, field, value)
-
-    db.commit()
-    db.refresh(product)
-    return product
+    return update_product(db, product_id, payload, user)
 
 
 @router.delete("/{product_id}")
-def delete_product(
+def delete_product_endpoint(
     product_id: int,
     db: Session = Depends(get_db),
     user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
 ):
-    product = db.scalar(select(Product).where(Product.id == product_id))
-    if not product:
-        raise HTTPException(status_code=404, detail="Produto nao encontrado")
-
-    restaurant = db.scalar(select(Restaurant).where(Restaurant.id == product.restaurant_id))
-    if user.role != UserRole.admin and restaurant and restaurant.owner_user_id != user.id:
-        raise HTTPException(status_code=403, detail="Sem permissao")
-
-    db.delete(product)
-    db.commit()
+    delete_product(db, product_id, user)
     return {"message": "Produto removido"}

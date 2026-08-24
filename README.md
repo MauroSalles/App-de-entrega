@@ -1,190 +1,136 @@
 # 🍔 App de Entrega - Projeto Integrador II
 
-> Uma aplicação de delivery estilo iFood com cardápio digital e sistema completo de gerenciamento de pedidos.
+Aplicação de delivery inspirada em plataformas como iFood, com fluxo completo para **cliente**, **restaurante**, **entregador** e **admin**.
 
----
+> Status atual: vitrine de restaurantes, carrinho local, checkout com endereço real, histórico de pedidos e acompanhamento básico de entregas.
 
-## 🛠️ Stack Tecnológico
+## ✨ Destaques
+
+- 🔐 Autenticação com JWT e perfis distintos
+- 🏪 Cardápio digital com onboarding de restaurante
+- 🛒 Carrinho persistido no navegador
+- 📦 Pedido com endereço real salvo na conta
+- 🛵 Atribuição de entregador, atualização de status e localização
+- 🧪 Testes de API + smoke test do frontend no CI
+
+## 🧱 Stack
 
 | Camada | Tecnologias |
-|--------|-------------|
-| **Frontend** | ⚛️ Next.js 13+ • TypeScript • 🎨 Tailwind CSS • ⚡ React Query • 🏪 Zustand |
-| **Backend** | 🐍 FastAPI • 🗄️ SQLAlchemy • 📦 Alembic • 🔐 JWT |
-| **Banco de Dados** | 🐘 PostgreSQL |
-| **Infraestrutura** | 🐳 Docker Compose • 🌐 Nginx |
+| --- | --- |
+| Frontend | Next.js, TypeScript, Tailwind CSS, React Query, Zustand |
+| Backend | FastAPI, SQLAlchemy, Alembic, JWT |
+| Banco | PostgreSQL |
+| Infra | Docker Compose, Nginx |
 
----
+## 🗂️ Estrutura do projeto
 
-## 📁 Estrutura do Projeto
-
-```
+```text
 App-de-entrega/
-│
-├── 🔙 backend/          # API FastAPI
-├── 🎨 frontend/         # Aplicação Next.js
-├── 🌐 infra/            # Nginx e scripts de deploy
-├── 📚 docs/             # Requisitos e contrato de API
-└── docker-compose.yml   # Orquestração de containers
+├── backend/       # API FastAPI
+├── frontend/      # App Next.js
+├── infra/         # Nginx e scripts de deploy
+├── docs/          # Requisitos, contrato da API e deploy
+└── docker-compose.yml
 ```
 
----
-
-## ✨ Funcionalidades Implementadas
-
-### 🔐 Autenticação & Autorização
-- ✅ Cadastro e login de usuários
-- ✅ Autenticação por token JWT
-- ✅ 4 perfis de usuário distintos:
-  - 👤 **Cliente** - Navega e faz pedidos
-  - 🏪 **Dono do Restaurante** - Gerencia cardápio
-  - 🚚 **Entregador** - Realiza entregas
-  - ⚙️ **Admin** - Gerencia a plataforma
-
-### 🍽️ Gerenciamento de Restaurantes
-- ✅ Listagem de restaurantes
-- ✅ Cardápio digital por restaurante
-- ✅ CRUD de produtos (criar, atualizar, deletar)
-
-### 🛒 Sistema de Pedidos
-- ✅ Carrinho simples e funcional
-- ✅ Criação de pedidos
-- ✅ Histórico de pedidos por perfil
-- ✅ Atualização de status em tempo real
-- ✅ Vinculação automática de entregadores
-
-### 📍 Gerenciamento de Entregas
-- ✅ Rastreamento de status
-- ✅ Atualização de localização em tempo real
-- ✅ Histórico de entregas
-
----
-
-## 🚀 Como Rodar Localmente
-
-### Pré-requisitos
-- 🐳 [Docker](https://www.docker.com/) e Docker Compose instalados
-- 📝 Git para clonar o repositório
-
-### Passo a passo
+## 🚀 Subir o projeto com Docker
 
 ```bash
-# 1️⃣ Clone o repositório
-git clone https://github.com/MauroSalles/App-de-entrega.git
-cd App-de-entrega
-
-# 2️⃣ Inicie os containers
 docker compose up -d --build
-
-# 3️⃣ Aguarde o build completar (~2-3 minutos)
 ```
 
----
+### Endereços locais
 
-## 📍 Endereços Locais
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8000
+- Swagger: http://localhost:8000/docs
+- Nginx: http://localhost
 
-| Serviço | URL | 📝 Descrição |
-|---------|-----|-------------|
-| 🎨 **Frontend** | [http://localhost:3000](http://localhost:3000) | Aplicação Next.js |
-| 🔙 **Backend** | [http://localhost:8000](http://localhost:8000) | API FastAPI |
-| 📖 **API Docs** | [http://localhost:8000/docs](http://localhost:8000/docs) | Swagger Interactive |
-| 🌐 **Nginx** | [http://localhost](http://localhost) | Reverse Proxy |
+### Observações importantes
 
----
+- O backend aplica **migrations automaticamente** na inicialização do container.
+- Para popular dados de demonstração, mantenha `SEED_DEMO_DATA=true` no `docker-compose.yml`.
 
-## 🔌 Principais Rotas da API
+## 👥 Contas demo
 
-### 🔐 Autenticação
-```
-POST   /api/v1/auth/register          # Criar conta
-POST   /api/v1/auth/login             # Fazer login
-GET    /api/v1/auth/me                # Dados do usuário
-```
+| Perfil | Email | Senha | Uso principal |
+| --- | --- | --- | --- |
+| Dono do restaurante | `owner@demo.com` | `123456` | Cadastro de restaurante e produtos |
+| Cliente | `client@demo.com` | `123456` | Navegação, carrinho e pedidos |
+| Entregador | `courier@demo.com` | `123456` | Painel de entregas |
 
-### 🏪 Restaurantes
-```
-GET    /api/v1/restaurants            # Listar restaurantes
-GET    /api/v1/restaurants/{id}/menu  # Menu de um restaurante
-```
+## ✅ Funcionalidades já disponíveis
 
-### 🍕 Produtos
-```
-POST   /api/v1/products               # Criar produto
-PUT    /api/v1/products/{id}          # Atualizar produto
-DELETE /api/v1/products/{id}          # Deletar produto
-```
+- Cadastro, login e sessão por token JWT
+- Perfis: `cliente`, `dono_restaurante`, `entregador` e `admin`
+- CRUD de endereços do cliente
+- Listagem de restaurantes e cardápio
+- Onboarding básico de restaurante
+- CRUD de produtos
+- Carrinho local persistido no navegador
+- Criação de pedido com endereço real
+- Histórico de pedidos por perfil
+- Vínculo de entregador ao pedido
+- Atualização de status e localização de entrega
+- Seed automática para ambiente local
 
-### 🛒 Carrinho
-```
-POST   /api/v1/cart/items             # Adicionar ao carrinho
-```
+## 🔌 Rotas principais da API
 
-### 📦 Pedidos
-```
-POST   /api/v1/orders                 # Criar pedido
-GET    /api/v1/orders/me              # Meus pedidos
-PATCH  /api/v1/orders/{id}/status     # Atualizar status
-PATCH  /api/v1/orders/{id}/assign-courier  # Atribuir entregador
-```
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/auth/me`
+- `GET /api/v1/addresses`
+- `POST /api/v1/addresses`
+- `PUT /api/v1/addresses/{id}`
+- `DELETE /api/v1/addresses/{id}`
+- `GET /api/v1/restaurants`
+- `GET /api/v1/restaurants/mine`
+- `POST /api/v1/restaurants`
+- `GET /api/v1/restaurants/{id}/menu`
+- `GET /api/v1/products/restaurant/{id}`
+- `POST /api/v1/products`
+- `PUT /api/v1/products/{id}`
+- `DELETE /api/v1/products/{id}`
+- `POST /api/v1/orders`
+- `GET /api/v1/orders/me`
+- `PATCH /api/v1/orders/{id}/status`
+- `PATCH /api/v1/orders/{id}/assign-courier`
+- `GET /api/v1/users/couriers`
+- `PATCH /api/v1/deliveries/{id}/status`
+- `POST /api/v1/deliveries/{id}/location`
+- `GET /api/v1/deliveries/me/active`
 
-### 🚚 Entregas
-```
-PATCH  /api/v1/deliveries/{id}/status     # Atualizar status
-POST   /api/v1/deliveries/{id}/location   # Atualizar localização
-```
+## 🧪 Testes e validação
 
----
+### Backend
 
-## 📚 Documentação Complementar
-
-- 📋 [**requirements.md**](docs/requirements.md) - Requisitos funcionais e não-funcionais
-- 📖 [**api-contract.md**](docs/api-contract.md) - Contrato completo da API
-- 🌐 [**oracle-deploy.md**](docs/oracle-deploy.md) - Guia de deploy em Oracle Cloud
-
----
-
-## 🎯 Próximos Passos Recomendados
-
-### Para melhorias imediatas:
-- [ ] 🧪 Implementar testes unitários dos serviços (auth, pedidos, entregas)
-- [ ] 🌱 Criar seed inicial com dados de exemplo (restaurante, produtos, usuários)
-- [ ] 🗺️ Refatorar fluxo de endereço no frontend (remover ID fixo do carrinho)
-- [ ] 🔒 Finalizar HTTPS em produção
-- [ ] 💾 Configurar backup diário no Oracle Cloud
-
----
-
-## 💡 Dicas de Desenvolvimento
-
-### Estrutura de Branches
-```
-main           # Production-ready
-develop        # Desenvolvimento
-feature/*      # Novas funcionalidades
-bugfix/*       # Correções de bugs
-```
-
-### Variáveis de Ambiente
-Crie arquivos `.env` nos diretórios backend e frontend com as configurações necessárias.
-
-### Logs
 ```bash
-# Ver logs em tempo real
-docker compose logs -f backend
-docker compose logs -f frontend
+cd backend
+python -m unittest discover -s tests -v
 ```
 
----
+### Frontend
 
-## 📞 Suporte & Contribuições
+```bash
+cd frontend
+npm install
+npm run build
+npm run smoke
+```
 
-Encontrou um bug? Tem uma sugestão? Abra uma [issue](https://github.com/MauroSalles/App-de-entrega/issues) ou faça um pull request! 🤝
+O workflow `.github/workflows/ci.yml` executa os testes da API e um smoke test básico do frontend.
 
----
+## 📚 Documentação complementar
 
-<div align="center">
+- `docs/requirements.md`
+- `docs/api-contract.md`
+- `docs/oracle-deploy.md`
+- `backend/README.md`
+- `frontend/README.md`
 
-**Desenvolvido com ❤️ para o Projeto Integrador II**
+## 🎯 Próximos bons passos
 
-⭐ Se este projeto foi útil, considere dar uma estrela!
-
-</div>
+- Refinar observabilidade e tratamento de erros
+- Evoluir a experiência mobile e estados de carregamento
+- Adicionar métricas operacionais e dashboards
+- Expandir a gestão do pedido para múltiplos cenários de entrega
