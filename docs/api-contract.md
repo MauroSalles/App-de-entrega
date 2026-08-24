@@ -32,10 +32,13 @@
 - PUT /api/v1/products/{id}
 - DELETE /api/v1/products/{id}
 
-## Pedidos
+## Carrinho (legado)
 
 - POST /api/v1/cart/items
 - DELETE /api/v1/cart/items/{item_id}
+
+## Pedidos
+
 - POST /api/v1/orders
 - GET /api/v1/orders/me
 - PATCH /api/v1/orders/{id}/status
