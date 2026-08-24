@@ -43,9 +43,13 @@
 - GET /api/v1/orders/me
 - PATCH /api/v1/orders/{id}/status
 - PATCH /api/v1/orders/{id}/assign-courier
+- `POST /api/v1/orders` retorna `404` quando algum `product_id` informado nao existe.
 
 ## Entregador
 
 - PATCH /api/v1/deliveries/{id}/status
 - POST /api/v1/deliveries/{id}/location
 - GET /api/v1/deliveries/me/active
+- `POST /api/v1/deliveries/{id}/location` valida coordenadas:
+  - `latitude` entre `-90` e `90`
+  - `longitude` entre `-180` e `180`
