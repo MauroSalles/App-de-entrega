@@ -29,11 +29,14 @@ class OrderStatusUpdate(BaseModel):
 
 class OrderOut(BaseModel):
     id: int
+    client_user_id: int
     restaurant_id: int
+    delivery_address_id: int
     status: OrderStatus
     subtotal: float
     delivery_fee: float
     total: float
+    notes: str | None
     created_at: datetime
 
     class Config:
