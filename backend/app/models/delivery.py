@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Enum, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -28,4 +28,4 @@ class DeliveryTracking(Base):
     latitude: Mapped[float] = mapped_column(Numeric(10, 7), nullable=False)
     longitude: Mapped[float] = mapped_column(Numeric(10, 7), nullable=False)
     status: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

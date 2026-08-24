@@ -30,7 +30,9 @@ def create_order(db: Session, payload: OrderCreate, user: User) -> Order:
         if item.quantity <= 0:
             raise HTTPException(status_code=400, detail="Quantidade invalida")
         product = db.scalar(select(Product).where(Product.id == item.product_id))
-        if not product or product.restaurant_id != payload.restaurant_id or not product.is_available:
+        if not product:
+            raise HTTPException(status_code=404, detail=f"Produto {item.product_id} nao encontrado")
+        if product.restaurant_id != payload.restaurant_id or not product.is_available:
             raise HTTPException(status_code=400, detail=f"Produto {item.product_id} invalido")
         line = float(product.price) * item.quantity
         subtotal += line

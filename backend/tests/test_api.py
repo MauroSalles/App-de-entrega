@@ -224,3 +224,87 @@ class DeliveryApiTestCase(unittest.TestCase):
             self.assertEqual(delivery.courier_user_id, courier_id)
             self.assertEqual(delivery.status, DeliveryStatus.retirado)
             self.assertEqual(len(tracking_rows), 1)
+
+    def test_create_order_returns_404_when_product_does_not_exist(self):
+        bundle = self._create_restaurant_bundle()
+        self._register(name="Cliente", email="cliente@404.com", role="cliente")
+        token = self._login(email="cliente@404.com")
+
+        address_response = self.client.post(
+            "/api/v1/addresses",
+            json={
+                "street": "Rua C",
+                "number": "300",
+                "district": "Centro",
+                "city": "Santos",
+                "state": "SP",
+                "zip_code": "11000-000",
+            },
+            headers=self._auth_headers(token),
+        )
+        self.assertEqual(address_response.status_code, 200)
+
+        order_response = self.client.post(
+            "/api/v1/orders",
+            json={
+                "restaurant_id": bundle["restaurant_id"],
+                "delivery_address_id": address_response.json()["id"],
+                "items": [{"product_id": 999999, "quantity": 1}],
+            },
+            headers=self._auth_headers(token),
+        )
+        self.assertEqual(order_response.status_code, 404)
+        self.assertIn("nao encontrado", order_response.json()["detail"])
+
+    def test_update_location_validates_latitude_and_longitude(self):
+        bundle = self._create_restaurant_bundle(owner_email="owner@coords.com")
+        self._register(name="Cliente", email="cliente@coords.com", role="cliente")
+        self._register(name="Courier", email="courier@coords.com", role="entregador")
+
+        client_token = self._login(email="cliente@coords.com")
+        owner_token = self._login(email="owner@coords.com")
+        courier_token = self._login(email="courier@coords.com")
+
+        address_response = self.client.post(
+            "/api/v1/addresses",
+            json={
+                "street": "Rua D",
+                "number": "400",
+                "district": "Centro",
+                "city": "Sao Vicente",
+                "state": "SP",
+                "zip_code": "11300-000",
+            },
+            headers=self._auth_headers(client_token),
+        )
+        self.assertEqual(address_response.status_code, 200)
+
+        order_response = self.client.post(
+            "/api/v1/orders",
+            json={
+                "restaurant_id": bundle["restaurant_id"],
+                "delivery_address_id": address_response.json()["id"],
+                "items": [{"product_id": bundle["product_id"], "quantity": 1}],
+            },
+            headers=self._auth_headers(client_token),
+        )
+        self.assertEqual(order_response.status_code, 200)
+        order_id = order_response.json()["id"]
+
+        with self.SessionTesting() as db:
+            courier_id = db.scalar(select(User.id).where(User.email == "courier@coords.com"))
+
+        assign_response = self.client.patch(
+            f"/api/v1/orders/{order_id}/assign-courier",
+            json={"courier_user_id": courier_id},
+            headers=self._auth_headers(owner_token),
+        )
+        self.assertEqual(assign_response.status_code, 200)
+        delivery_id = assign_response.json()["id"]
+
+        invalid_location_response = self.client.post(
+            f"/api/v1/deliveries/{delivery_id}/location",
+            json={"latitude": 120, "longitude": -46.63, "status": "em_rota"},
+            headers=self._auth_headers(courier_token),
+        )
+        self.assertEqual(invalid_location_response.status_code, 422)
