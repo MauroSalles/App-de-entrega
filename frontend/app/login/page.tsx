@@ -45,7 +45,7 @@ export default function LoginPage() {
             Acessar
           </button>
           <p className="text-center text-sm text-slate-600">
-            Ainda nao tem conta? <Link className="font-semibold text-red-700" href="/register">Cadastre-se</Link>
+            Ainda não tem conta? <Link className="font-semibold text-red-700" href="/register">Cadastre-se</Link>
           </p>
         </form>
       </section>

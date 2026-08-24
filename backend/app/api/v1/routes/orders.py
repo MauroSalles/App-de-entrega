@@ -29,8 +29,12 @@ def add_cart_item(
         raise HTTPException(status_code=400, detail="Produto indisponivel")
 
     existing_items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+    existing_products = db.scalars(
+        select(Product).where(Product.id.in_([existing_item.product_id for existing_item in existing_items]))
+    ).all()
+    products_by_id = {existing_product.id: existing_product for existing_product in existing_products}
     for existing_item in existing_items:
-        existing_product = db.scalar(select(Product).where(Product.id == existing_item.product_id))
+        existing_product = products_by_id.get(existing_item.product_id)
         if existing_product and existing_product.restaurant_id != product.restaurant_id:
             db.delete(existing_item)
 
@@ -52,9 +56,11 @@ def list_cart_items(
     user: User = Depends(require_roles(UserRole.cliente)),
 ):
     items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+    products = db.scalars(select(Product).where(Product.id.in_([item.product_id for item in items]))).all()
+    products_by_id = {product.id: product for product in products}
     response: list[CartItemOut] = []
     for item in items:
-        product = db.scalar(select(Product).where(Product.id == item.product_id))
+        product = products_by_id.get(item.product_id)
         if not product:
             continue
         response.append(

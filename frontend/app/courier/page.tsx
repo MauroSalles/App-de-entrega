@@ -41,7 +41,7 @@ export default function CourierPage() {
         <div className="card">
           <h1 className="text-2xl font-black text-red-700">Painel do Entregador</h1>
         </div>
-        {!isLoading && !data?.length && <div className="card">Nenhuma entrega ativa no momento.</div>}
+        {data !== undefined && !isLoading && !data.length && <div className="card">Nenhuma entrega ativa no momento.</div>}
         {data === undefined && !isLoading && <div className="card">Faça login como entregador para acessar este painel.</div>}
         {isLoading && <div className="card">Carregando...</div>}
         {(data ?? []).map((delivery) => (
