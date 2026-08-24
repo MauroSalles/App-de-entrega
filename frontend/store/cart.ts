@@ -12,6 +12,7 @@ type CartState = {
   restaurantId: number | null;
   items: CartLine[];
   addItem: (restaurantId: number, item: Omit<CartLine, "quantity">) => void;
+  decrementItem: (productId: number) => void;
   removeItem: (productId: number) => void;
   clear: () => void;
 };
@@ -40,6 +41,17 @@ export const useCartStore = create<CartState>()(
         }
 
         set({ restaurantId, items: [...current.items, { ...item, quantity: 1 }] });
+      },
+      decrementItem: (productId) => {
+        const current = get();
+        const items = current.items
+          .map((line) => (line.product_id === productId ? { ...line, quantity: line.quantity - 1 } : line))
+          .filter((line) => line.quantity > 0);
+
+        set({
+          items,
+          restaurantId: items.length ? current.restaurantId : null
+        });
       },
       removeItem: (productId) => {
         const current = get();
