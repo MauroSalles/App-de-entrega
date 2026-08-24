@@ -5,7 +5,7 @@ PORT=${PORT:-3000}
 HOST=${HOST:-127.0.0.1}
 LOG_FILE=${LOG_FILE:-/tmp/frontend-smoke.log}
 
-npm run dev > "$LOG_FILE" 2>&1 &
+PORT="$PORT" npm run start > "$LOG_FILE" 2>&1 &
 SERVER_PID=$!
 cleanup() {
   kill "$SERVER_PID" >/dev/null 2>&1 || true
