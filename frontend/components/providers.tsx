@@ -18,7 +18,7 @@ function SessionBootstrap() {
     hydrateFromStorage();
   }, [hydrateFromStorage]);
 
-  useQuery({
+  const sessionQuery = useQuery({
     queryKey: ["session", token],
     queryFn: async () => {
       const response = await api.get<User>("/auth/me");
@@ -26,10 +26,20 @@ function SessionBootstrap() {
     },
     enabled: hydrated && !!token,
     retry: false,
-    staleTime: 60_000,
-    onSuccess: (user) => setUser(user),
-    onError: () => logout()
+    staleTime: 60_000
   });
+
+  useEffect(() => {
+    if (sessionQuery.data) {
+      setUser(sessionQuery.data);
+    }
+  }, [sessionQuery.data, setUser]);
+
+  useEffect(() => {
+    if (sessionQuery.error) {
+      logout();
+    }
+  }, [sessionQuery.error, logout]);
 
   return null;
 }

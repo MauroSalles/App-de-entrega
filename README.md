@@ -20,25 +20,34 @@ App-de-entrega/
    docker-compose.yml
 ```
 
-## Funcionalidades implementadas nesta base
+## Funcionalidades desta base
 
 - Cadastro/login e autenticacao por token JWT
 - Perfis: cliente, dono_restaurante, entregador, admin
+- Enderecos do cliente com CRUD
 - Listagem de restaurantes e cardapio
+- Onboarding basico de restaurante
 - CRUD de produtos (create/update/delete)
-- Carrinho simples (API)
-- Criacao de pedido e historico por perfil
-- Atualizacao de status do pedido
+- Carrinho local persistido no navegador
+- Criacao de pedido com selecao de endereco real
+- Historico de pedidos por perfil
 - Vinculo de entregador ao pedido
 - Atualizacao de status e localizacao de entrega
+- Seed/demo automatico para ambiente local
 
 ## Como rodar com Docker
 
 ```bash
-git clone https://github.com/MauroSalles/App-de-entrega.git
-cd App-de-entrega
 docker compose up -d --build
 ```
+
+O backend aplica migrations automaticamente ao iniciar. Para popular dados demo no ambiente local, deixe `SEED_DEMO_DATA=true` no compose.
+
+## Contas demo
+
+- Dono do restaurante: `owner@demo.com` / `123456`
+- Cliente: `client@demo.com` / `123456`
+- Entregador: `courier@demo.com` / `123456`
 
 ## Enderecos locais
 
@@ -52,29 +61,49 @@ docker compose up -d --build
 - POST /api/v1/auth/register
 - POST /api/v1/auth/login
 - GET /api/v1/auth/me
+- GET /api/v1/addresses
+- POST /api/v1/addresses
+- PUT /api/v1/addresses/{id}
+- DELETE /api/v1/addresses/{id}
 - GET /api/v1/restaurants
+- GET /api/v1/restaurants/mine
+- POST /api/v1/restaurants
 - GET /api/v1/restaurants/{id}/menu
+- GET /api/v1/products/restaurant/{id}
 - POST /api/v1/products
 - PUT /api/v1/products/{id}
 - DELETE /api/v1/products/{id}
-- POST /api/v1/cart/items
 - POST /api/v1/orders
 - GET /api/v1/orders/me
 - PATCH /api/v1/orders/{id}/status
 - PATCH /api/v1/orders/{id}/assign-courier
+- GET /api/v1/users/couriers
 - PATCH /api/v1/deliveries/{id}/status
 - POST /api/v1/deliveries/{id}/location
+- GET /api/v1/deliveries/me/active
+
+## Testes e CI
+
+### Backend
+
+```bash
+cd backend
+python -m unittest discover -s tests -v
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run build
+npm run smoke
+```
+
+O workflow `.github/workflows/ci.yml` executa os testes de API e um smoke test basico do frontend.
 
 ## Documentacao complementar
 
 - docs/requirements.md
 - docs/api-contract.md
 - docs/oracle-deploy.md
-
-## Proximos passos recomendados para a banca
-
-1. Implementar testes unitarios de servicos (auth, pedido, entrega).
-2. Criar seed inicial com restaurante, produtos, cliente e entregador.
-3. Ajustar fluxo de endereco no frontend (evitar id fixo no carrinho).
-4. Finalizar HTTPS e backup diario no deploy Oracle Cloud.
-
