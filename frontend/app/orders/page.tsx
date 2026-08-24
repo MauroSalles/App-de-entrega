@@ -9,10 +9,10 @@ import { Order } from "@/lib/types";
 import { useAuthStore } from "@/store/auth";
 
 const statusLabel: Record<string, string> = {
-  pendente: "Pendente",
-  confirmado: "Confirmado",
-  preparando: "Preparando",
-  saiu_para_entrega: "Saiu para entrega",
+  recebido: "Recebido",
+  em_preparo: "Em preparo",
+  pronto: "Pronto",
+  saiu_entrega: "Saiu para entrega",
   entregue: "Entregue",
   cancelado: "Cancelado"
 };
