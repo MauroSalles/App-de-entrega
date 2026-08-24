@@ -128,7 +128,7 @@ O workflow `.github/workflows/ci.yml` executa os testes da API e um smoke test b
 - `backend/README.md`
 - `frontend/README.md`
 
-## 🎯 Próximos bons passos
+## 🎯 Próximos passos
 
 - Refinar observabilidade e tratamento de erros
 - Evoluir a experiência mobile e estados de carregamento
