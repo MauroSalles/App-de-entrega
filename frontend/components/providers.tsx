@@ -1,5 +1,6 @@
 "use client";
 
+import axios from "axios";
 import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
@@ -36,7 +37,10 @@ function SessionBootstrap() {
   }, [sessionQuery.data, setUser]);
 
   useEffect(() => {
-    if (sessionQuery.error) {
+    if (
+      axios.isAxiosError(sessionQuery.error) &&
+      [401, 403].includes(sessionQuery.error.response?.status ?? 0)
+    ) {
       logout();
     }
   }, [sessionQuery.error, logout]);
