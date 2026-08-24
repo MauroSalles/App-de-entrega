@@ -14,12 +14,16 @@ export default function RegisterPage() {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    await api.post("/auth/register", { name, email, password, role });
-    alert("Cadastro realizado. Agora faça login.");
-    setName("");
-    setEmail("");
-    setPassword("");
-    setRole("cliente");
+    try {
+      await api.post("/auth/register", { name, email, password, role });
+      alert("Cadastro realizado. Agora faça login.");
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("cliente");
+    } catch {
+      alert("Não foi possível concluir o cadastro.");
+    }
   }
 
   return (

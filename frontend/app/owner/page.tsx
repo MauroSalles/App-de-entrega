@@ -73,17 +73,14 @@ export default function OwnerPage() {
 
   async function createRestaurant(event: FormEvent) {
     event.preventDefault();
-    await api.post("/restaurants", {
+    const response = await api.post<Restaurant>("/restaurants", {
       name: restaurantForm.name,
       description: restaurantForm.description,
       delivery_fee: Number(restaurantForm.delivery_fee),
       avg_delivery_time_min: Number(restaurantForm.avg_delivery_time_min)
     });
-    const result = await restaurantQuery.refetch();
-    const latestRestaurant = result.data?.[result.data.length - 1];
-    if (latestRestaurant) {
-      setSelectedRestaurantId(String(latestRestaurant.id));
-    }
+    await restaurantQuery.refetch();
+    setSelectedRestaurantId(String(response.data.id));
     alert("Restaurante criado");
   }
 
