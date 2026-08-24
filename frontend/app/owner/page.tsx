@@ -136,6 +136,7 @@ export default function OwnerPage() {
       return;
     }
     await api.patch(`/orders/${orderId}/assign-courier`, { courier_user_id: Number(courierUserId) });
+    await orderQuery.refetch();
   }
 
   return (

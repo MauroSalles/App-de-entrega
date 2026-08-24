@@ -48,3 +48,6 @@ class CartItemOut(BaseModel):
     quantity: int
     unit_price: float
     line_total: float
+
+    class Config:
+        from_attributes = True
