@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import { useAuthStore } from "@/store/auth";
+
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
 
 export const api = axios.create({ baseURL });
@@ -18,7 +20,7 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("token");
+      useAuthStore.getState().setToken(null);
     }
     return Promise.reject(error);
   }

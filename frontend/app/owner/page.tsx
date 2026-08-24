@@ -125,8 +125,8 @@ export default function OwnerPage() {
     await productQuery.refetch();
   }
 
-  async function updateOrderStatus(orderId: number) {
-    await api.patch(`/orders/${orderId}/status`, { status: statusDrafts[orderId] ?? "em_preparo" });
+  async function updateOrderStatus(orderId: number, currentStatus: string) {
+    await api.patch(`/orders/${orderId}/status`, { status: statusDrafts[orderId] ?? currentStatus });
     await orderQuery.refetch();
   }
 
@@ -317,7 +317,7 @@ export default function OwnerPage() {
                   <option value="saiu_entrega">saiu_entrega</option>
                   <option value="entregue">entregue</option>
                 </select>
-                <button className="btn-primary" type="button" onClick={() => updateOrderStatus(order.id)}>
+                <button className="btn-primary" type="button" onClick={() => updateOrderStatus(order.id, order.status)}>
                   Atualizar status
                 </button>
                 <select
