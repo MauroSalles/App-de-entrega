@@ -27,6 +27,8 @@ def create_order(db: Session, payload: OrderCreate, user: User) -> Order:
     subtotal = 0.0
     order_items: list[OrderItem] = []
     for item in payload.items:
+        if item.quantity <= 0:
+            raise HTTPException(status_code=400, detail="Quantidade invalida")
         product = db.scalar(select(Product).where(Product.id == item.product_id))
         if not product or product.restaurant_id != payload.restaurant_id or not product.is_available:
             raise HTTPException(status_code=400, detail=f"Produto {item.product_id} invalido")
