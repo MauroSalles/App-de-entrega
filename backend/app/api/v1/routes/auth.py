@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, require_roles
 from app.core.security import create_access_token, get_password_hash, verify_password
 from app.db.session import get_db
+from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.auth import TokenResponse, UserLogin, UserMe, UserRegister
 
@@ -42,3 +43,11 @@ def login(payload: UserLogin, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserMe)
 def me(user: User = Depends(get_current_user)):
     return user
+
+
+@router.get("/couriers", response_model=list[UserMe])
+def list_couriers(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
+):
+    return db.scalars(select(User).where(User.role == UserRole.entregador, User.is_active.is_(True))).all()

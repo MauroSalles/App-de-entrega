@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.models.delivery import Delivery, DeliveryTracking
 from app.models.enums import DeliveryStatus, UserRole
 from app.models.order import Order
+from app.models.restaurant import Restaurant
 from app.models.user import User
 from app.schemas.delivery import (
     AssignCourierInput,
@@ -25,13 +26,18 @@ def assign_courier(
     order_id: int,
     payload: AssignCourierInput,
     db: Session = Depends(get_db),
-    _: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
+    user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
 ):
+    order = db.scalar(select(Order).where(Order.id == order_id))
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    if user.role == UserRole.dono_restaurante:
+        restaurant = db.scalar(select(Restaurant).where(Restaurant.id == order.restaurant_id))
+        if not restaurant or restaurant.owner_user_id != user.id:
+            raise HTTPException(status_code=403, detail="Sem permissao")
+
     delivery = db.scalar(select(Delivery).where(Delivery.order_id == order_id))
     if not delivery:
-        order = db.scalar(select(Order).where(Order.id == order_id))
-        if not order:
-            raise HTTPException(status_code=404, detail="Pedido nao encontrado")
         delivery = Delivery(order_id=order.id)
         db.add(delivery)
         db.flush()

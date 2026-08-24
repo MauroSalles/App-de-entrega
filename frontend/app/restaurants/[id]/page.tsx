@@ -6,12 +6,10 @@ import { useParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { api } from "@/lib/api";
 import { Product } from "@/lib/types";
-import { useCartStore } from "@/store/cart";
 
 export default function RestaurantMenuPage() {
   const params = useParams<{ id: string }>();
   const restaurantId = Number(params.id);
-  const addItem = useCartStore((state) => state.addItem);
 
   const { data, isLoading } = useQuery({
     queryKey: ["menu", restaurantId],
@@ -20,6 +18,15 @@ export default function RestaurantMenuPage() {
       return response.data;
     }
   });
+
+  async function addToCart(productId: number) {
+    try {
+      await api.post("/cart/items", { product_id: productId, quantity: 1 });
+      alert("Item adicionado ao carrinho.");
+    } catch {
+      alert("Faça login como cliente para adicionar itens ao carrinho.");
+    }
+  }
 
   return (
     <main>
@@ -42,13 +49,7 @@ export default function RestaurantMenuPage() {
               </div>
               <button
                 className="btn-primary"
-                onClick={() =>
-                  addItem(restaurantId, {
-                    product_id: product.id,
-                    name: product.name,
-                    price: Number(product.price)
-                  })
-                }
+                onClick={() => addToCart(product.id)}
               >
                 Adicionar
               </button>

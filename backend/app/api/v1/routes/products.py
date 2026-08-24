@@ -13,6 +13,20 @@ from app.schemas.product import ProductCreate, ProductOut, ProductUpdate
 router = APIRouter()
 
 
+@router.get("/restaurant/{restaurant_id}", response_model=list[ProductOut])
+def list_restaurant_products(
+    restaurant_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles(UserRole.dono_restaurante, UserRole.admin)),
+):
+    restaurant = db.scalar(select(Restaurant).where(Restaurant.id == restaurant_id))
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurante nao encontrado")
+    if user.role != UserRole.admin and restaurant.owner_user_id != user.id:
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    return db.scalars(select(Product).where(Product.restaurant_id == restaurant_id)).all()
+
+
 @router.post("", response_model=ProductOut)
 def create_product(
     payload: ProductCreate,

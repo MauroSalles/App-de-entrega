@@ -5,21 +5,34 @@
 - POST /api/v1/auth/register
 - POST /api/v1/auth/login
 - GET /api/v1/auth/me
+- GET /api/v1/auth/couriers
+
+## Enderecos
+
+- GET /api/v1/addresses
+- POST /api/v1/addresses
+- PUT /api/v1/addresses/{id}
+- DELETE /api/v1/addresses/{id}
 
 ## Restaurantes e cardapio
 
 - GET /api/v1/restaurants
+- GET /api/v1/restaurants/me
+- POST /api/v1/restaurants
+- PUT /api/v1/restaurants/{id}
 - GET /api/v1/restaurants/{id}
 - GET /api/v1/restaurants/{id}/menu
 
 ## Produtos (restaurante)
 
+- GET /api/v1/products/restaurant/{restaurant_id}
 - POST /api/v1/products
 - PUT /api/v1/products/{id}
 - DELETE /api/v1/products/{id}
 
 ## Carrinho e pedidos
 
+- GET /api/v1/cart/items
 - POST /api/v1/cart/items
 - DELETE /api/v1/cart/items/{item_id}
 - POST /api/v1/orders

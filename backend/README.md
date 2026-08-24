@@ -2,7 +2,7 @@
 
 ## Rodando local
 
-1. Copie .env.example para .env
+1. Copie `.env.example` para `.env`
 2. Instale dependencias:
 
 ```bash
@@ -15,10 +15,25 @@ pip install -r requirements.txt
 alembic upgrade head
 ```
 
-4. Inicie API:
+4. Seed opcional para demo:
+
+```bash
+python -m app.db.seed
+```
+
+5. Inicie a API:
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
 Swagger: http://localhost:8000/docs
+
+## O que esta pronto
+
+- Auth JWT
+- CRUD de restaurantes e produtos
+- Carrinho persistido
+- Enderecos de entrega
+- Pedidos e entregas
+- CORS configurado para desenvolvimento local

@@ -11,7 +11,7 @@ from app.models.order import CartItem, Order, OrderItem
 from app.models.product import Product
 from app.models.restaurant import Restaurant
 from app.models.user import User
-from app.schemas.order import CartItemCreate, OrderCreate, OrderOut, OrderStatusUpdate
+from app.schemas.order import CartItemCreate, CartItemOut, OrderCreate, OrderItemInput, OrderOut, OrderStatusUpdate
 
 router = APIRouter()
 
@@ -25,12 +25,50 @@ def add_cart_item(
     product = db.scalar(select(Product).where(Product.id == payload.product_id))
     if not product:
         raise HTTPException(status_code=404, detail="Produto nao encontrado")
+    if not product.is_available:
+        raise HTTPException(status_code=400, detail="Produto indisponivel")
 
-    item = CartItem(user_id=user.id, product_id=payload.product_id, quantity=payload.quantity)
-    db.add(item)
+    existing_items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+    for existing_item in existing_items:
+        existing_product = db.scalar(select(Product).where(Product.id == existing_item.product_id))
+        if existing_product and existing_product.restaurant_id != product.restaurant_id:
+            db.delete(existing_item)
+
+    item = db.scalar(select(CartItem).where(CartItem.user_id == user.id, CartItem.product_id == payload.product_id))
+    if item:
+        item.quantity += payload.quantity
+    else:
+        item = CartItem(user_id=user.id, product_id=payload.product_id, quantity=payload.quantity)
+        db.add(item)
+
     db.commit()
     db.refresh(item)
     return {"id": item.id, "user_id": item.user_id, "product_id": item.product_id, "quantity": item.quantity}
+
+
+@router.get("/cart/items", response_model=list[CartItemOut])
+def list_cart_items(
+    db: Session = Depends(get_db),
+    user: User = Depends(require_roles(UserRole.cliente)),
+):
+    items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+    response: list[CartItemOut] = []
+    for item in items:
+        product = db.scalar(select(Product).where(Product.id == item.product_id))
+        if not product:
+            continue
+        response.append(
+            CartItemOut(
+                id=item.id,
+                product_id=product.id,
+                restaurant_id=product.restaurant_id,
+                product_name=product.name,
+                quantity=item.quantity,
+                unit_price=float(product.price),
+                line_total=float(product.price) * item.quantity,
+            )
+        )
+    return response
 
 
 @router.delete("/cart/items/{item_id}")
@@ -61,12 +99,24 @@ def create_order(
     if not address:
         raise HTTPException(status_code=404, detail="Endereco nao encontrado")
 
+    input_items = payload.items
+    if not input_items:
+        cart_items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+        input_items = [
+            OrderItemInput(product_id=cart_item.product_id, quantity=cart_item.quantity) for cart_item in cart_items
+        ]
+
+    if not input_items:
+        raise HTTPException(status_code=400, detail="Carrinho vazio")
+
     subtotal = 0.0
     order_items: list[OrderItem] = []
-    for item in payload.items:
+    for item in input_items:
         product = db.scalar(select(Product).where(Product.id == item.product_id))
         if not product or product.restaurant_id != payload.restaurant_id:
             raise HTTPException(status_code=400, detail=f"Produto {item.product_id} invalido")
+        if not product.is_available:
+            raise HTTPException(status_code=400, detail=f"Produto {item.product_id} indisponivel")
         line = float(product.price) * item.quantity
         subtotal += line
         order_items.append(
@@ -99,6 +149,11 @@ def create_order(
 
     delivery = Delivery(order_id=order.id)
     db.add(delivery)
+
+    cart_items = db.scalars(select(CartItem).where(CartItem.user_id == user.id)).all()
+    for cart_item in cart_items:
+        db.delete(cart_item)
+
     db.commit()
     db.refresh(order)
     return order

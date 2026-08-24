@@ -25,3 +25,6 @@ class UserMe(BaseModel):
     name: str
     email: EmailStr
     role: UserRole
+
+    class Config:
+        from_attributes = True
