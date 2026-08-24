@@ -98,7 +98,7 @@ export default function CartPage() {
 
         <div className="grid gap-3">
           {(cartQuery.data ?? []).map((item) => (
-            <article key={item.product_id} className="card flex items-center justify-between">
+            <article key={item.id} className="card flex items-center justify-between">
               <div>
                 <h2 className="font-semibold">{item.product_name}</h2>
                 <p className="text-sm">Qtd: {item.quantity}</p>
