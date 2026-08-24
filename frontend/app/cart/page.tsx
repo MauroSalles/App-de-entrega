@@ -24,7 +24,7 @@ const emptyAddress: AddressPayload = {
 export default function CartPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
-  const { items, restaurantId, removeItem, clear } = useCartStore();
+  const { items, restaurantId, removeItem, decrementItem, clear } = useCartStore();
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [addressForm, setAddressForm] = useState<AddressPayload>(emptyAddress);
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
@@ -33,6 +33,7 @@ export default function CartPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const total = useMemo(() => items.reduce((acc, item) => acc + item.price * item.quantity, 0), [items]);
+  const itemCount = useMemo(() => items.reduce((acc, item) => acc + item.quantity, 0), [items]);
 
   const addressesQuery = useQuery({
     queryKey: ["addresses"],
@@ -125,9 +126,10 @@ export default function CartPage() {
       <Header />
       <section className="container-box grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="space-y-4">
-          <div className="card">
-            <h1 className="text-2xl font-black text-red-700">Carrinho</h1>
-            <p className="text-sm text-slate-600">Carrinho local persistido no navegador, finalizado com endereco da conta.</p>
+          <div className="glass-panel px-6 py-6">
+            <span className="badge">Checkout inteligente</span>
+            <h1 className="mt-3 text-3xl font-black text-red-700">Carrinho</h1>
+            <p className="mt-2 text-sm text-slate-600">Ajuste quantidades, confirme o endereco e finalize o pedido em poucos passos.</p>
           </div>
 
           {errorMessage && <div className="card text-red-700">{errorMessage}</div>}
@@ -135,22 +137,39 @@ export default function CartPage() {
 
           <div className="grid gap-3">
             {items.map((item) => (
-              <article key={item.product_id} className="card flex items-center justify-between">
+              <article key={item.product_id} className="card flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="font-semibold">{item.name}</h2>
-                  <p className="text-sm">Qtd: {item.quantity}</p>
+                  <p className="text-sm text-slate-500">Qtd: {item.quantity}</p>
                   <p className="text-red-700">R$ {(item.price * item.quantity).toFixed(2)}</p>
                 </div>
-                <button className="rounded-lg border border-red-200 px-3 py-1" onClick={() => removeItem(item.product_id)}>
-                  Remover
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button className="btn-secondary px-3 py-1.5" onClick={() => decrementItem(item.product_id)} type="button">
+                    -1
+                  </button>
+                  <button className="btn-primary px-3 py-1.5" onClick={() => removeItem(item.product_id)} type="button">
+                    Remover
+                  </button>
+                </div>
               </article>
             ))}
             {!items.length && <div className="card text-sm text-slate-500">Seu carrinho esta vazio.</div>}
           </div>
 
           <div className="card">
-            <p className="font-semibold">Subtotal: R$ {total.toFixed(2)}</p>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm text-slate-500">Itens no carrinho</p>
+                <p className="text-2xl font-black text-slate-900">{itemCount}</p>
+              </div>
+              {!!items.length && (
+                <button className="btn-secondary" onClick={clear} type="button">
+                  Limpar carrinho
+                </button>
+              )}
+            </div>
+            <p className="mt-4 font-semibold">Subtotal: R$ {total.toFixed(2)}</p>
+            {restaurantId && <p className="mt-1 text-sm text-slate-500">Pedido vinculado ao restaurante #{restaurantId}.</p>}
             {!user ? (
               <p className="mt-3 text-sm text-slate-600">Faca login para cadastrar endereco e concluir o pedido.</p>
             ) : (
