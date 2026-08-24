@@ -34,6 +34,8 @@
 
 ## Pedidos
 
+- POST /api/v1/cart/items
+- DELETE /api/v1/cart/items/{item_id}
 - POST /api/v1/orders
 - GET /api/v1/orders/me
 - PATCH /api/v1/orders/{id}/status

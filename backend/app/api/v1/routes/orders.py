@@ -20,6 +20,9 @@ def add_cart_item(
     db: Session = Depends(get_db),
     user: User = Depends(require_roles(UserRole.cliente)),
 ):
+    if payload.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantidade invalida")
+
     product = db.scalar(select(Product).where(Product.id == payload.product_id, Product.is_available.is_(True)))
     if not product:
         raise HTTPException(status_code=404, detail="Produto nao encontrado")
