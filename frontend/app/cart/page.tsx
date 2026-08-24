@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -8,6 +9,7 @@ import { api } from "@/lib/api";
 import { Address, CartItem } from "@/lib/types";
 
 export default function CartPage() {
+  const router = useRouter();
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [addressForm, setAddressForm] = useState({
     street: "",
@@ -81,7 +83,7 @@ export default function CartPage() {
     });
 
     await cartQuery.refetch();
-    alert("Pedido criado com sucesso.");
+    router.push("/orders");
   }
 
   return (

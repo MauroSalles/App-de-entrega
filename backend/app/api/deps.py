@@ -24,7 +24,7 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
         raise credentials_exception
 
     user = db.scalar(select(User).where(User.id == user_id))
-    if not user:
+    if not user or not user.is_active:
         raise credentials_exception
     return user
 

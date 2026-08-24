@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Header } from "@/components/header";
@@ -11,12 +12,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const setToken = useAuthStore((state) => state.setToken);
+  const router = useRouter();
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
-    const response = await api.post<{ access_token: string }>("/auth/login", { email, password });
-    setToken(response.data.access_token);
-    alert("Login realizado.");
+    try {
+      const response = await api.post<{ access_token: string }>("/auth/login", { email, password });
+      setToken(response.data.access_token);
+      router.push("/");
+    } catch {
+      alert("Email ou senha inválidos.");
+    }
   }
 
   return (

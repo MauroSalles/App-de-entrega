@@ -9,6 +9,7 @@ import { Delivery } from "@/lib/types";
 
 export default function CourierPage() {
   const [locationDrafts, setLocationDrafts] = useState<Record<number, { latitude: string; longitude: string }>>({});
+  const [geoLoading, setGeoLoading] = useState<Record<number, boolean>>({});
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["active-deliveries"],
     queryFn: async () => {
@@ -20,6 +21,30 @@ export default function CourierPage() {
   async function updateStatus(deliveryId: number, status: string) {
     await api.patch(`/deliveries/${deliveryId}/status`, { status });
     await refetch();
+  }
+
+  function detectLocation(deliveryId: number) {
+    if (!navigator.geolocation) {
+      alert("Geolocalização não suportada pelo navegador.");
+      return;
+    }
+    setGeoLoading((current) => ({ ...current, [deliveryId]: true }));
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocationDrafts((current) => ({
+          ...current,
+          [deliveryId]: {
+            latitude: String(position.coords.latitude),
+            longitude: String(position.coords.longitude)
+          }
+        }));
+        setGeoLoading((current) => ({ ...current, [deliveryId]: false }));
+      },
+      () => {
+        alert("Não foi possível obter a localização.");
+        setGeoLoading((current) => ({ ...current, [deliveryId]: false }));
+      }
+    );
   }
 
   async function sendLocation(deliveryId: number) {
@@ -62,7 +87,7 @@ export default function CourierPage() {
                 Entregue
               </button>
             </div>
-            <div className="grid gap-2 md:grid-cols-3">
+            <div className="grid gap-2 md:grid-cols-4">
               <input
                 className="rounded-lg border border-red-100 p-2"
                 placeholder="Latitude"
@@ -85,6 +110,13 @@ export default function CourierPage() {
                   }))
                 }
               />
+              <button
+                className="rounded-lg border border-red-200 px-3 py-2"
+                onClick={() => detectLocation(delivery.id)}
+                disabled={geoLoading[delivery.id]}
+              >
+                {geoLoading[delivery.id] ? "Obtendo..." : "Usar GPS"}
+              </button>
               <button className="rounded-lg border border-red-200 px-3 py-2" onClick={() => sendLocation(delivery.id)}>
                 Enviar localização
               </button>

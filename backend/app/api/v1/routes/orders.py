@@ -115,10 +115,14 @@ def create_order(
     if not input_items:
         raise HTTPException(status_code=400, detail="Carrinho vazio")
 
+    product_ids = [item.product_id for item in input_items]
+    products = db.scalars(select(Product).where(Product.id.in_(product_ids))).all()
+    products_by_id = {p.id: p for p in products}
+
     subtotal = 0.0
     order_items: list[OrderItem] = []
     for item in input_items:
-        product = db.scalar(select(Product).where(Product.id == item.product_id))
+        product = products_by_id.get(item.product_id)
         if not product or product.restaurant_id != payload.restaurant_id:
             raise HTTPException(status_code=400, detail=f"Produto {item.product_id} invalido")
         if not product.is_available:
